@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500&display=swap" rel="stylesheet" />
+    <title>Weather App</title>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            font-family: "Quicksand", sans-serif;
+        }
+        body {
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+        .clouds {
+            position: absolute;
+            top: 10%;
+            left: -100px;
+            width: 300px;
+            height: 100px;
+            background: #fff;
+            opacity: 0.7;
+            border-radius: 100px;
+            animation: cloud-move 20s linear infinite;
+        }
+        @keyframes cloud-move {
+            from { left: -100px; }
+            to { left: 110%; }
+        }
+        .box {
+            width: 22rem;
+            height: auto;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0.2rem 3rem rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+        #search-bar {
+            width: 80%;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+        #search-btn {
+            width: 80%;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            background: #57606f;
+            color: #fff;
+            text-align: center;
+            cursor: pointer;
+            margin: 1rem auto;
+        }
+        .weather-icon {
+            font-size: 3rem;
+            margin: 10px auto;
+            color: white;
+            animation: icon-pulse 2s infinite;
+        }
+        @keyframes icon-pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .info {
+            text-align: center;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+         /* .footer {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #555;
+        } */
+        .footer {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 1rem;
+            background: linear-gradient(15deg, #ff7eb3, #ff758c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="clouds"></div>
+    <div class="clouds" style="top: 30%; animation-duration: 25s;"></div>
+    <div class="clouds" style="top: 50%; animation-duration: 30s;"></div>
+    <div class="box">
+        <input id="search-bar" type="text" placeholder="Enter city name" />
+        <div id="search-btn">Search</div>
+        <div class="loading" id="loading">Fetching Weather...</div>
+        <div class="weather-icon" id="weather-icon"><i class="fas fa-cloud"></i></div>
+        <div class="info">
+            <h2 id="location">--</h2>
+            <h1 id="temperature">--</h1>
+            <h3 id="humidity">--</h3>
+            <h3 id="wind-speed">--</h3>
+        </div>
+        <div class="footer">
+          Made with ❤️ by <span style="font-style: italic;">Prabhat Rana</span>
+        </div>
+    </div>
+    <script>
+        const searchBtn = document.getElementById("search-btn");
+        const searchBar = document.getElementById("search-bar");
+        const locationElement = document.getElementById("location");
+        const tempElement = document.getElementById("temperature");
+        const humidityElement = document.getElementById("humidity");
+        const windSpeedElement = document.getElementById("wind-speed");
+        const loadingElement = document.getElementById("loading");
+        const weatherIcon = document.getElementById("weather-icon");
+
+        async function fetchWeather(city) {
+            loadingElement.style.display = "block";
+            try {
+                const apiKey = "8a3d3716e5751c78bb26c840ef7cb253";
+                const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error("City not found");
+                const data = await response.json();
+                updateUI(data);
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                loadingElement.style.display = "none";
+            }
+        }
+
+        if (tempStatus == "Clear" || tempStatus == "Sunny") {
+                            weatherIcon.innerHTML = "<i class='fas fa-sun' style='color: #eccc68;'></i>";
+                        } else if (tempStatus == "Clouds") {
+                            weatherIcon.innerHTML = "<i class='fas fa-cloud' style='color: #f1f2f6;'></i>";
+                        } else if (tempStatus == "Rain") {
+                            weatherIcon.innerHTML = "<i class='fas fa-cloud-rain' style='color: #a4b0be;'></i>";
+                        } else {
+                            weatherIcon.innerHTML = "<i class='fas fa-cloud' style='color: #f1f2f6;'></i>";
+                        }
+                       else {
+                          alert("Incomplete weather data received.");
+                       }
+
+        function updateUI(data) {
+            locationElement.textContent = `${data.name}, ${data.sys.country}`;
+            tempElement.textContent = `${data.main.temp.toFixed(1)}°C`;
+            humidityElement.textContent = `Humidity: ${data.main.humidity}%`;
+            windSpeedElement.textContent = `Wind Speed: ${data.wind.speed} m/s`;
+            
+            const weatherType = data.weather[0].main.toLowerCase();
+            const icons = {
+                clear: "☀️",
+                clouds: "☁️",
+                rain: "🌧️",
+                snow: "❄️",
+                thunderstorm: "⛈️",
+                drizzle: "🌦️",
+                mist: "🌫️"
+            };
+            weatherIcon.textContent = icons[weatherType] || "🌍";
+        }
+
+        searchBtn.addEventListener("click", () => {
+            const city = searchBar.value.trim();
+            if (!city) {
+                alert("Please enter a city name");
+                return;
+            }
+            fetchWeather(city);
+        });
+    </script>
+</body>
+
+</html>
